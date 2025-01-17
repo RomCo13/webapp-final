@@ -9,7 +9,7 @@ function PostList() {
     useEffect(() => {
         const { req, abort } = postService.getAllPosts()
         req.then((res) => {
-            setPosts(res.data)
+            setPosts(res.data.data)
         }).catch((err) => {
             console.log(err)
             if (err instanceof CanceledError) return
