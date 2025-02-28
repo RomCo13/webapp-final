@@ -30,6 +30,10 @@ function Post({ post, userEmail }: PostProps) {
     content: post.content
   });
 
+  // Add this check to determine if the current user is the post owner
+  const isPostOwner = userEmail === post.student.email;
+  console.log(userEmail);
+  console.log(post.student.email);
   useEffect(() => {
     const loadComments = async () => {
       try {
@@ -80,13 +84,29 @@ const handleEditClick = () => {
 
 const handleSaveEdit = async () => {
     try {
-        const response = await apiClient.put(`/studentpost/${post._id}`, editedPost);
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            console.error('No authentication token found');
+            return;
+        }
+
+        const response = await apiClient.put(
+            `/studentpost/${post._id}`,
+            editedPost,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+        
         // Update the post in the UI
         post.title = editedPost.title;
         post.content = editedPost.content;
         setIsEditing(false);
     } catch (error) {
         console.error('Error updating post:', error);
+        // You might want to show an error message to the user here
     }
 };
   const handleCancelEdit = () => {
@@ -106,12 +126,16 @@ const handleSaveEdit = async () => {
           className="profile-pic"
         />
         <span className="user-email">{post.student.email}</span>
-        <button 
-          className="edit-button"
-          onClick={handleEditClick}
-        >
-          <FontAwesomeIcon icon={faPencilAlt} />
-        </button>
+        {/* Only show edit button if user is the post owner */}
+        {isPostOwner && (
+          <button 
+            className="edit-button"
+            onClick={handleEditClick}
+            title="Edit post"
+          >
+            <FontAwesomeIcon icon={faPencilAlt} />
+          </button>
+        )}
       </div>
       <div className="post-content">
         {isEditing ? (
