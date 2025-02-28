@@ -7,7 +7,7 @@ import { registrUser, googleSignin, IUser } from '../services/user-service'
 import { CredentialResponse, GoogleLogin } from '@react-oauth/google'
 
 interface RegistrationProps {
-  onRegisterSuccess: () => void;
+  onRegisterSuccess: (email: string) => void;
 }
 
 function Registration({ onRegisterSuccess }: RegistrationProps) {
@@ -39,7 +39,7 @@ function Registration({ onRegisterSuccess }: RegistrationProps) {
             try {
                 const res = await registrUser(user);
                 console.log(res);
-                onRegisterSuccess();
+                onRegisterSuccess(res.email);
             } catch (e) {
                 console.log("Registration failed:", e);
             }
@@ -50,7 +50,7 @@ function Registration({ onRegisterSuccess }: RegistrationProps) {
         try {
             const res = await googleSignin(credentialResponse);
             console.log(res);
-            onRegisterSuccess();
+            onRegisterSuccess(res.email);
         } catch (e) {
             console.log(e);
         }
