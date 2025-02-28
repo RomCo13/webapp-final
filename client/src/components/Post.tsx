@@ -1,9 +1,13 @@
+import React from 'react';
+import './Post.css'; // Assuming you will create a CSS file for styling
+
 export interface PostData {
   title: string;
   content: string;
   student: {
     email: string;
   };
+  imageUrl?: string; // Optional image URL for the post
 }
 
 interface PostProps {
@@ -13,10 +17,18 @@ interface PostProps {
 function Post({ post }: PostProps) {
   return (
     <div>
-      <h1>
-        owner:{post.student.email} title:{post.title}
-      </h1>
-      <h2>{post.content}</h2>
+      <div className="post-header">
+        <img
+          src="/src/assets/avatar.jpeg" // Placeholder for user profile picture
+          alt="User profile"
+          className="profile-pic"
+        />
+        <span className="user-email">{post.student.email}</span>
+      </div>
+      <div className="post-content">
+        <h2 className="post-title">{post.title}</h2>
+        <p className="post-description">{post.content}</p>
+      </div>
     </div>
   );
 }
