@@ -13,7 +13,6 @@ function PostsList() {
     const [posts, setPosts] = useState<PostData[]>([])
 
     useEffect(() => {
-        console.log("use effect")
         axios.get<PostData[]>("http://localhost:3000/studentpost").then((response) => {
             console.log(response.data)
             setPosts(response.data)

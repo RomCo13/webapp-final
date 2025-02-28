@@ -24,6 +24,19 @@ export const registrUser = (user: IUser) => {
     })
 }
 
+export const loginUser = (user: Partial<IUser>) => {
+    return new Promise<IUser>((resolve, reject) => {
+        console.log("Logging in user...")
+        console.log(user)
+        apiClient.post("/api/login", user).then((response) => {
+            console.log(response)
+            resolve(response.data)
+        }).catch((error) => {
+            console.log(error)
+            reject(error)
+        })
+    })
+}
 export const googleSignin = (credentialResponse: CredentialResponse) => {
     return new Promise<IUser>((resolve, reject) => {
         console.log("googleSignin ...")
