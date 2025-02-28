@@ -61,7 +61,7 @@ function App() {
           <div className="d-flex justify-content-end mb-3">
             <ProfileMenu onLogout={handleLogout} userEmail={userEmail} />
           </div>
-          <PostList />
+          <PostList userEmail={userEmail} />
         </div>
       )}
     </div>

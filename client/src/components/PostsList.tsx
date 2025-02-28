@@ -3,7 +3,12 @@ import Post, { PostData } from './Post'
 import postService, { CanceledError } from "../services/posts-service"
 import './PostsList.css'
 
-function PostList() {
+// Add userEmail to props
+interface PostsListProps {
+    userEmail: string;
+}
+
+function PostList({ userEmail }: PostsListProps) {
     const [posts, setPosts] = useState<PostData[]>([])
     const [error, setError] = useState()
 
@@ -38,7 +43,7 @@ function PostList() {
                         <div className="relative">
                             {/* Main Post Content */}
                             <div className="p-4">
-                                <Post post={post} />
+                                <Post post={post} userEmail={userEmail} />
                             </div>
                         </div>
                     </div>
