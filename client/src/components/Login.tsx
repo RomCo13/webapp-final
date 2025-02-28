@@ -5,7 +5,7 @@ import { googleSignin, loginUser, IUser } from '../services/user-service'
 import { CredentialResponse, GoogleLogin } from '@react-oauth/google'
 
 interface LoginProps {
-  onLoginSuccess: () => void;
+  onLoginSuccess: (email: string) => void;
 }
 
 function Login({ onLoginSuccess }: LoginProps) {
@@ -21,7 +21,7 @@ function Login({ onLoginSuccess }: LoginProps) {
             try {
                 const res = await loginUser(user)
                 console.log("Login successful:", res)
-                onLoginSuccess()
+                onLoginSuccess(user.email!)
             } catch (e) {
                 console.log("Login failed:", e)
             }
@@ -32,7 +32,7 @@ function Login({ onLoginSuccess }: LoginProps) {
         try {
             const res = await googleSignin(credentialResponse)
             console.log("Google login successful:", res)
-            onLoginSuccess()
+            onLoginSuccess(res.email)
         } catch (e) {
             console.log("Google login failed:", e)
         }
