@@ -1,13 +1,20 @@
 import { useEffect, useState } from 'react'
 import Post, { PostData } from './Post'
 import postService, { CanceledError } from "../services/posts-service"
+import CreatePostDialog from './CreatePostDialog'
 import './PostsList.css'
 
-function PostList() {
+// Add userEmail to props
+interface PostsListProps {
+    userEmail: string;
+}
+
+function PostList({ userEmail }: PostsListProps) {
     const [posts, setPosts] = useState<PostData[]>([])
     const [error, setError] = useState()
+    const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-    useEffect(() => {
+    const fetchPosts = () => {
         const { req, abort } = postService.getAllPosts()
         req.then((res) => {
             setPosts(res.data.data)
@@ -16,6 +23,11 @@ function PostList() {
             if (err instanceof CanceledError) return
             setError(err.message)
         })
+        return abort
+    }
+
+    useEffect(() => {
+        const abort = fetchPosts()
         return () => abort()
     }, [])
 
@@ -28,6 +40,22 @@ function PostList() {
                 </div>
             )}
 
+            {/* Create Post Button */}
+            <button 
+                className="floating-button"
+                onClick={() => setIsDialogOpen(true)}
+                title="Create new post"
+            >
+                +
+            </button>
+
+            {/* Create Post Dialog */}
+            <CreatePostDialog 
+                isOpen={isDialogOpen}
+                onClose={() => setIsDialogOpen(false)}
+                onPostCreated={fetchPosts}
+            />
+
             {/* Posts Feed */}
             <div className="space-y-4">
                 {posts.map((post, index) => (
@@ -38,7 +66,7 @@ function PostList() {
                         <div className="relative">
                             {/* Main Post Content */}
                             <div className="p-4">
-                                <Post post={post} />
+                                <Post post={post} userEmail={userEmail} />
                             </div>
                         </div>
                     </div>
@@ -48,7 +76,7 @@ function PostList() {
                 {posts.length === 0 && !error && (
                     <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
                         <p className="text-gray-500 text-lg">No posts to display yet</p>
-                        <p className="text-gray-400 mt-1">Check back later for updates!</p>
+                        <p className="text-gray-400 mt-1">Create your first post by clicking the + button!</p>
                     </div>
                 )}
             </div>

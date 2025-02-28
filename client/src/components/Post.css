@@ -149,18 +149,30 @@
   color: #666;
   cursor: pointer;
   padding: 5px 10px;
-  transition: color 0.2s;
+  transition: all 0.2s ease;
 }
 
 .edit-button:hover {
   color: #333;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.edit-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .edit-form {
   padding: 1rem;
-  background: var(--background-color);
-  border-radius: var(--border-radius);
+  background: #f8f9fa;
+  border-radius: 8px;
   margin: 1rem 0;
+}
+
+.edit-input,
+.edit-textarea {
+  margin-bottom: 1rem;
 }
 
 .edit-input {
@@ -183,8 +195,7 @@
 
 .edit-buttons {
   display: flex;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 0.5rem;
 }
 
 .save-button,
@@ -212,4 +223,10 @@
 
 .cancel-button:hover {
   background-color: #c8c8c8;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
 } 

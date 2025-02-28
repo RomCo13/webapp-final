@@ -17,11 +17,12 @@ export interface PostData {
 
 interface PostProps {
   post: PostData;
+  userEmail: string;
 }
 
-function Post({ post }: PostProps) {
+function Post({ post, userEmail }: PostProps) {
   const [comments, setComments] = useState<{ author: string; content: string }[]>([]);
-  const [newComment, setNewComment] = useState({ author: '', content: '' });
+  const [newComment, setNewComment] = useState({ content: '' });
   const [showComments, setShowComments] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedPost, setEditedPost] = useState({
@@ -29,6 +30,10 @@ function Post({ post }: PostProps) {
     content: post.content
   });
 
+  // Add this check to determine if the current user is the post owner
+  const isPostOwner = userEmail === post.student.email;
+  console.log(userEmail);
+  console.log(post.student.email);
   useEffect(() => {
     const loadComments = async () => {
       try {
@@ -43,16 +48,31 @@ function Post({ post }: PostProps) {
   }, [post._id]);
 
   const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setNewComment({ ...newComment, [e.target.name]: e.target.value });
+    setNewComment({ ...newComment, content: e.target.value });
   };
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-        const response = await apiClient.post(`/comments/${post._id}`, newComment);
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            console.error('No authentication token found');
+            return;
+        }
+
+        const response = await apiClient.post(
+            `/comments/${post._id}`, 
+            { ...newComment, author: userEmail },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+        
         const addedComment = response.data;
         setComments([...comments, addedComment]);
-        setNewComment({ author: '', content: '' });
+        setNewComment({ content: '' });
     } catch (error) {
         console.error('Error adding comment:', error);
     }
@@ -64,13 +84,29 @@ const handleEditClick = () => {
 
 const handleSaveEdit = async () => {
     try {
-        const response = await apiClient.put(`/studentpost/${post._id}`, editedPost);
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            console.error('No authentication token found');
+            return;
+        }
+
+        const response = await apiClient.put(
+            `/studentpost/${post._id}`,
+            editedPost,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+        
         // Update the post in the UI
         post.title = editedPost.title;
         post.content = editedPost.content;
         setIsEditing(false);
     } catch (error) {
         console.error('Error updating post:', error);
+        // You might want to show an error message to the user here
     }
 };
   const handleCancelEdit = () => {
@@ -90,12 +126,16 @@ const handleSaveEdit = async () => {
           className="profile-pic"
         />
         <span className="user-email">{post.student.email}</span>
-        <button 
-          className="edit-button"
-          onClick={handleEditClick}
-        >
-          <FontAwesomeIcon icon={faPencilAlt} />
-        </button>
+        {/* Only show edit button if user is the post owner */}
+        {isPostOwner && (
+          <button 
+            className="edit-button"
+            onClick={handleEditClick}
+            title="Edit post"
+          >
+            <FontAwesomeIcon icon={faPencilAlt} />
+          </button>
+        )}
       </div>
       <div className="post-content">
         {isEditing ? (
@@ -138,14 +178,6 @@ const handleSaveEdit = async () => {
           </ul>
           <div className="comments-divider"></div>
           <form className="new-comment-form" onSubmit={handleCommentSubmit}>
-            <input
-              type="text"
-              name="author"
-              value={newComment.author}
-              onChange={handleCommentChange}
-              placeholder="Your name"
-              required
-            />
             <textarea
               name="content"
               value={newComment.content}
