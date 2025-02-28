@@ -27,7 +27,7 @@ function ProfileMenu({ onLogout, userEmail }: ProfileMenuProps) {
       >
         <div className="profile-button-content">
           <span className="profile-avatar">{userInitial}</span>
-          <span className="profile-name">raz</span>
+          <span className="profile-name">{userEmail}</span>
         </div>
       </button>
       

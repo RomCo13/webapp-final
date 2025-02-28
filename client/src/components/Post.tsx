@@ -3,6 +3,7 @@ import './Post.css'; // Assuming you will create a CSS file for styling
 import { fetchCommentsByPostId } from '../services/comments-service';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPencilAlt } from '@fortawesome/free-solid-svg-icons';
+import apiClient from '../services/api-client';
 
 export interface PostData {
   _id: string;
@@ -47,50 +48,31 @@ function Post({ post }: PostProps) {
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Call the API to add a comment
     try {
-      const response = await fetch(`/comments/${post._id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newComment),
-      });
-      if (response.ok) {
-        const addedComment = await response.json();
+        const response = await apiClient.post(`/comments/${post._id}`, newComment);
+        const addedComment = response.data;
         setComments([...comments, addedComment]);
         setNewComment({ author: '', content: '' });
-      }
     } catch (error) {
-      console.error('Error adding comment:', error);
+        console.error('Error adding comment:', error);
     }
-  };
+};
 
-  const handleEditClick = () => {
+const handleEditClick = () => {
     setIsEditing(true);
-  };
+};
 
-  const handleSaveEdit = async () => {
+const handleSaveEdit = async () => {
     try {
-      const response = await fetch(`/studentpost/${post._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(editedPost),
-      });
-      
-      if (response.ok) {
+        const response = await apiClient.put(`/studentpost/${post._id}`, editedPost);
         // Update the post in the UI
         post.title = editedPost.title;
         post.content = editedPost.content;
         setIsEditing(false);
-      }
     } catch (error) {
-      console.error('Error updating post:', error);
+        console.error('Error updating post:', error);
     }
-  };
-
+};
   const handleCancelEdit = () => {
     setEditedPost({
       title: post.title,
