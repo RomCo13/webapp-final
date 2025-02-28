@@ -2,13 +2,22 @@ import { useState } from 'react';
 import PostList from "./components/PostsList";
 import Registration from "./components/Registration";
 import Login from "./components/Login";
+import ProfileMenu from './components/ProfileMenu';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLogin, setShowLogin] = useState(true);
+  const [userEmail, setUserEmail] = useState('');
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (email: string) => {
     setIsLoggedIn(true);
+    setUserEmail(email);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUserEmail('');
+    setShowLogin(true);
   };
 
   const toggleAuthMode = () => {
@@ -48,7 +57,12 @@ function App() {
           )}
         </div>
       ) : (
-        <PostList />
+        <div>
+          <div className="d-flex justify-content-end mb-3">
+            <ProfileMenu onLogout={handleLogout} userEmail={userEmail} />
+          </div>
+          <PostList />
+        </div>
       )}
     </div>
   );

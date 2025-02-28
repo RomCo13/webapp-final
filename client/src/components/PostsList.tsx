@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Post, { PostData } from './Post'
 import postService, { CanceledError } from "../services/posts-service"
+import './PostsList.css'
 
 function PostList() {
     const [posts, setPosts] = useState<PostData[]>([])
@@ -19,7 +20,7 @@ function PostList() {
     }, [])
 
     return (
-        <div className="max-w-2xl mx-auto py-4">
+        <div className="posts-list-container">
             {/* Error Message */}
             {error && (
                 <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-r-lg">
@@ -28,21 +29,24 @@ function PostList() {
             )}
 
             {/* Posts Feed */}
-            <div className="space-y-6">
+            <div className="space-y-4">
                 {posts.map((post, index) => (
                     <div 
                         key={index}
-                        className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 border border-gray-200"
+                        className="post-item bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 overflow-hidden mb-4"
                     >
-                        <div className="p-6">
-                            <Post post={post} />
+                        <div className="relative">
+                            {/* Main Post Content */}
+                            <div className="p-4">
+                                <Post post={post} />
+                            </div>
                         </div>
                     </div>
                 ))}
                 
                 {/* Empty State */}
                 {posts.length === 0 && !error && (
-                    <div className="text-center py-12 bg-white rounded-lg shadow-md border border-gray-200">
+                    <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
                         <p className="text-gray-500 text-lg">No posts to display yet</p>
                         <p className="text-gray-400 mt-1">Check back later for updates!</p>
                     </div>

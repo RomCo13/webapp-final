@@ -5,7 +5,7 @@ import { googleSignin, loginUser, IUser } from '../services/user-service'
 import { CredentialResponse, GoogleLogin } from '@react-oauth/google'
 
 interface LoginProps {
-  onLoginSuccess: () => void;
+  onLoginSuccess: (email: string) => void;
 }
 
 function Login({ onLoginSuccess }: LoginProps) {
@@ -21,7 +21,7 @@ function Login({ onLoginSuccess }: LoginProps) {
             try {
                 const res = await loginUser(user)
                 console.log("Login successful:", res)
-                onLoginSuccess()
+                onLoginSuccess(user.email!)
             } catch (e) {
                 console.log("Login failed:", e)
             }
@@ -32,7 +32,7 @@ function Login({ onLoginSuccess }: LoginProps) {
         try {
             const res = await googleSignin(credentialResponse)
             console.log("Google login successful:", res)
-            onLoginSuccess()
+            onLoginSuccess(res.email)
         } catch (e) {
             console.log("Google login failed:", e)
         }
@@ -44,45 +44,47 @@ function Login({ onLoginSuccess }: LoginProps) {
 
     return (
         <div className="vstack gap-3 col-md-7 mx-auto">
-            <h1>Login</h1>
+            <h1 className="mb-4">Login</h1>
             
-            <div className="form-floating">
+            <div className="form-group mb-3">
+                <label htmlFor="emailInput" className="form-label">Email</label>
                 <input 
                     ref={emailInputRef} 
-                    type="text" 
+                    type="email" 
                     className="form-control" 
-                    id="floatingInput" 
-                    placeholder="" 
+                    id="emailInput"
+                    placeholder="Enter your email"
                 />
-                <label htmlFor="floatingInput">Email</label>
             </div>
             
-            <div className="form-floating">
+            <div className="form-group mb-3">
+                <label htmlFor="passwordInput" className="form-label">Password</label>
                 <input 
                     ref={passwordInputRef} 
                     type="password" 
                     className="form-control" 
-                    id="floatingPassword" 
-                    placeholder="" 
+                    id="passwordInput"
+                    placeholder="Enter your password"
                 />
-                <label htmlFor="floatingPassword">Password</label>
             </div>
             
             <button 
                 type="button" 
-                className="btn btn-primary" 
+                className="btn btn-primary mb-3" 
                 onClick={login}
             >
                 <FontAwesomeIcon icon={faSignInAlt} className="me-2" />
                 Login
             </button>
 
-            <div className="text-center">OR</div>
+            <div className="text-center mb-3">OR</div>
             
-            <GoogleLogin 
-                onSuccess={onGoogleLoginSuccess} 
-                onError={onGoogleLoginFailure} 
-            />
+            <div className="d-flex justify-content-center">
+                <GoogleLogin 
+                    onSuccess={onGoogleLoginSuccess} 
+                    onError={onGoogleLoginFailure} 
+                />
+            </div>
         </div>
     )
 }
