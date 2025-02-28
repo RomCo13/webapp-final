@@ -1,14 +1,33 @@
 .posts-list-container {
-    width: 40%;
-    margin: 0 auto; /* Centers the container horizontally */
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
     padding: 20px;
-    box-sizing: border-box;
 }
 
 .post-item {
-    background-color: #f9f9f9;
-    border-radius: 10px; /* Rounds the corners */
-    padding: 15px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow */
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 1.5rem;
+    transition: var(--transition);
+    overflow: hidden;
+}
+
+.post-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    margin: 0.5rem 0;
 } 
