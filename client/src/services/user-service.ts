@@ -28,7 +28,7 @@ export const loginUser = (user: Partial<IUser>) => {
     return new Promise<IUser>((resolve, reject) => {
         console.log("Logging in user...")
         console.log(user)
-        apiClient.post("/api/login", user).then((response) => {
+        apiClient.post("/auth/login", user).then((response) => {
             console.log(response)
             resolve(response.data)
         }).catch((error) => {
