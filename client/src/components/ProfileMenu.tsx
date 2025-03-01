@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faSignOutAlt, faUser } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import './ProfileMenu.css';
 
 interface ProfileMenuProps {
@@ -13,6 +14,13 @@ function ProfileMenu({ onLogout, userEmail }: ProfileMenuProps) {
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
+  };
+
+  const handleLogout = () => {
+    // Clear all items from localStorage
+    localStorage.clear();
+    // Call the original onLogout handler
+    onLogout();
   };
 
   // Get first letter of email for avatar
@@ -33,14 +41,19 @@ function ProfileMenu({ onLogout, userEmail }: ProfileMenuProps) {
       
       {showDropdown && (
         <div className="profile-dropdown">
+          <Link 
+           to="/profile" 
+           className="dropdown-item"
+           onClick={() => setShowDropdown(false)}>
           <div className="user-info">
             <span className="profile-avatar-small">{userInitial}</span>
             <span className="user-label">Profile</span>
           </div>
           <div className="dropdown-divider"></div>
+          </Link>
           <button 
             className="dropdown-item text-danger" 
-            onClick={onLogout}
+            onClick={handleLogout}
             style={{ padding: "0.75rem 1rem" }}
           >
             <FontAwesomeIcon icon={faSignOutAlt} className="me-3" />
