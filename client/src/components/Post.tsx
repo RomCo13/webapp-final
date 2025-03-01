@@ -102,7 +102,6 @@ function Post({ post, userEmail }: PostProps) {
     setIsEditing(false);
   };
 
-  // Like/Unlike handler
   const handleLike = async () => {
     try {
       const token = localStorage.getItem("authToken");
@@ -110,15 +109,17 @@ function Post({ post, userEmail }: PostProps) {
         console.error("No authentication token found");
         return;
       }
-
+  
       const response = await apiClient.patch(
         `/studentpost/${post._id}/like`,
         { userId: userEmail },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      setLikes(response.data.likes);
-      setIsLiked(response.data.likes.includes(userEmail));
+  
+      const updatedLikes = response.data.likes.map((id: string) => id.toString());
+  
+      setLikes(updatedLikes);
+      setIsLiked(updatedLikes.includes(userEmail)); // Ensure user ID comparison
     } catch (error) {
       console.error("Error updating like:", error);
     }
