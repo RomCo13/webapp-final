@@ -20,6 +20,8 @@ function Login({ onLoginSuccess }: LoginProps) {
             }
             try {
                 const res = await loginUser(user)
+                // Store the token in localStorage
+                localStorage.setItem('authToken', res.accessToken ?? '')
                 console.log("Login successful:", res)
                 onLoginSuccess(user.email!)
             } catch (e) {
@@ -31,6 +33,8 @@ function Login({ onLoginSuccess }: LoginProps) {
     const onGoogleLoginSuccess = async (credentialResponse: CredentialResponse) => {
         try {
             const res = await googleSignin(credentialResponse)
+            // Store the token in localStorage
+            localStorage.setItem('authToken', res.accessToken ?? '')
             console.log("Google login successful:", res)
             onLoginSuccess(res.email)
         } catch (e) {
