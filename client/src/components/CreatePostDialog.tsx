@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import apiClient from '../services/api-client';
 import './CreatePostDialog.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faImage } from '@fortawesome/free-solid-svg-icons';
-import { uploadPhoto } from '../services/file-service';
 
 interface CreatePostDialogProps {
   isOpen: boolean;
@@ -14,21 +11,10 @@ interface CreatePostDialogProps {
 function CreatePostDialog({ isOpen, onClose, onPostCreated }: CreatePostDialogProps) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   if (!isOpen) return null;
-
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setSelectedImage(file);
-      // Create preview URL
-      setImagePreview(URL.createObjectURL(file));
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,24 +25,13 @@ function CreatePostDialog({ isOpen, onClose, onPostCreated }: CreatePostDialogPr
       const token = localStorage.getItem('authToken');
       if (!token) throw new Error('No auth token found');
 
-      let imageUrl = '';
-      if (selectedImage) {
-        imageUrl = await uploadPhoto(selectedImage);
-      }
-
       await apiClient.post('/studentpost', 
-        { 
-          title, 
-          content,
-          imageUrl 
-        },
+        { title, content },
         { headers: { Authorization: `Bearer ${token}` }}
       );
       
       setTitle('');
       setContent('');
-      setSelectedImage(null);
-      setImagePreview(null);
       onPostCreated();
       onClose();
     } catch (err) {
@@ -94,36 +69,6 @@ function CreatePostDialog({ isOpen, onClose, onPostCreated }: CreatePostDialogPr
               required
             />
           </div>
-          
-          {/* Image Upload Section */}
-          <div className="form-group image-upload-section">
-            <label htmlFor="image" className="image-upload-label">
-              <FontAwesomeIcon icon={faImage} /> Add Image
-            </label>
-            <input
-              type="file"
-              id="image"
-              accept="image/*"
-              onChange={handleImageSelect}
-              className="image-input"
-            />
-            {imagePreview && (
-              <div className="image-preview">
-                <img src={imagePreview} alt="Preview" />
-                <button 
-                  type="button" 
-                  onClick={() => {
-                    setSelectedImage(null);
-                    setImagePreview(null);
-                  }}
-                  className="remove-image-btn"
-                >
-                  Remove
-                </button>
-              </div>
-            )}
-          </div>
-
           <div className="dialog-actions">
             <button 
               type="button" 
