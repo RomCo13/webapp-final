@@ -169,9 +169,16 @@ function Post({ post, userEmail }: PostProps) {
 
       {/* Like Button */}
       <div className="like-section">
-        <button className="like-button" onClick={handleLike}>
-          <FontAwesomeIcon icon={isLiked ? faThumbsDown : faThumbsUp} />
-          {isLiked ? " Unlike" : " Like"} ({likes.length})
+        <button 
+          className={`like-button ${isLiked ? 'liked' : ''}`} 
+          onClick={handleLike}
+        >
+          <FontAwesomeIcon 
+            icon={isLiked ? faThumbsUp : faThumbsUp} 
+            style={{ color: isLiked ? '#1da1f2' : '#666' }}
+          />
+          <span>{isLiked ? 'Liked' : 'Like'}</span>
+          <span className="like-count">({likes.length})</span>
         </button>
       </div>
 
