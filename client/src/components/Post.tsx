@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import './Post.css'; // Assuming you will create a CSS file for styling
-import { fetchCommentsByPostId } from '../services/comments-service';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPencilAlt } from '@fortawesome/free-solid-svg-icons';
-import apiClient from '../services/api-client';
+import React, { useState, useEffect } from "react";
+import "./Post.css"; // Assuming you have a CSS file for styling
+import { fetchCommentsByPostId } from "../services/comments-service";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPencilAlt, faThumbsUp, faThumbsDown } from "@fortawesome/free-solid-svg-icons";
+import apiClient from "../services/api-client";
 
 export interface PostData {
   _id: string;
@@ -12,7 +12,8 @@ export interface PostData {
   student: {
     email: string;
   };
-  imageUrl?: string; // Optional image URL for the post
+  imageUrl?: string;
+  likes: string[]; // Array of user IDs who liked the post
 }
 
 interface PostProps {
@@ -22,25 +23,24 @@ interface PostProps {
 
 function Post({ post, userEmail }: PostProps) {
   const [comments, setComments] = useState<{ author: string; content: string }[]>([]);
-  const [newComment, setNewComment] = useState({ content: '' });
+  const [newComment, setNewComment] = useState({ content: "" });
   const [showComments, setShowComments] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedPost, setEditedPost] = useState({
-    title: post.title,
-    content: post.content
-  });
+  const [editedPost, setEditedPost] = useState({ title: post.title, content: post.content });
 
-  // Add this check to determine if the current user is the post owner
+  // Track likes
+  const [likes, setLikes] = useState(post.likes || []);
+  const [isLiked, setIsLiked] = useState(likes.includes(userEmail));
+
   const isPostOwner = userEmail === post.student.email;
-  console.log(userEmail);
-  console.log(post.student.email);
+
   useEffect(() => {
     const loadComments = async () => {
       try {
         const data = await fetchCommentsByPostId(post._id);
         setComments(data);
       } catch (error) {
-        console.error('Error loading comments:', error);
+        console.error("Error loading comments:", error);
       }
     };
 
@@ -54,85 +54,83 @@ function Post({ post, userEmail }: PostProps) {
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-        const token = localStorage.getItem('authToken');
-        if (!token) {
-            console.error('No authentication token found');
-            return;
-        }
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        console.error("No authentication token found");
+        return;
+      }
 
-        const response = await apiClient.post(
-            `/comments/${post._id}`, 
-            { ...newComment, author: userEmail },
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }
-        );
-        
-        const addedComment = response.data;
-        setComments([...comments, addedComment]);
-        setNewComment({ content: '' });
+      const response = await apiClient.post(
+        `/comments/${post._id}`,
+        { ...newComment, author: userEmail },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setComments([...comments, response.data]);
+      setNewComment({ content: "" });
     } catch (error) {
-        console.error('Error adding comment:', error);
+      console.error("Error adding comment:", error);
     }
-};
+  };
 
-const handleEditClick = () => {
+  const handleEditClick = () => {
     setIsEditing(true);
-};
+  };
 
-const handleSaveEdit = async () => {
+  const handleSaveEdit = async () => {
     try {
-        const token = localStorage.getItem('authToken');
-        if (!token) {
-            console.error('No authentication token found');
-            return;
-        }
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        console.error("No authentication token found");
+        return;
+      }
 
-        const response = await apiClient.put(
-            `/studentpost/${post._id}`,
-            editedPost,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }
-        );
-        
-        // Update the post in the UI
-        post.title = editedPost.title;
-        post.content = editedPost.content;
-        setIsEditing(false);
+      await apiClient.put(`/studentpost/${post._id}`, editedPost, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      post.title = editedPost.title;
+      post.content = editedPost.content;
+      setIsEditing(false);
     } catch (error) {
-        console.error('Error updating post:', error);
-        // You might want to show an error message to the user here
+      console.error("Error updating post:", error);
     }
-};
+  };
+
   const handleCancelEdit = () => {
-    setEditedPost({
-      title: post.title,
-      content: post.content
-    });
+    setEditedPost({ title: post.title, content: post.content });
     setIsEditing(false);
+  };
+
+  // Like/Unlike handler
+  const handleLike = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        console.error("No authentication token found");
+        return;
+      }
+
+      const response = await apiClient.patch(
+        `/posts/${post._id}/like`,
+        { userId: userEmail },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setLikes(response.data.likes);
+      setIsLiked(response.data.likes.includes(userEmail));
+    } catch (error) {
+      console.error("Error updating like:", error);
+    }
   };
 
   return (
     <div>
       <div className="post-header">
-        <img
-          src="/src/assets/avatar.jpeg" // Placeholder for user profile picture
-          alt="User profile"
-          className="profile-pic"
-        />
+        <img src="/src/assets/avatar.jpeg" alt="User profile" className="profile-pic" />
         <span className="user-email">{post.student.email}</span>
-        {/* Only show edit button if user is the post owner */}
         {isPostOwner && (
-          <button 
-            className="edit-button"
-            onClick={handleEditClick}
-            title="Edit post"
-          >
+          <button className="edit-button" onClick={handleEditClick} title="Edit post">
             <FontAwesomeIcon icon={faPencilAlt} />
           </button>
         )}
@@ -143,17 +141,21 @@ const handleSaveEdit = async () => {
             <input
               type="text"
               value={editedPost.title}
-              onChange={(e) => setEditedPost({...editedPost, title: e.target.value})}
+              onChange={(e) => setEditedPost({ ...editedPost, title: e.target.value })}
               className="edit-input"
             />
             <textarea
               value={editedPost.content}
-              onChange={(e) => setEditedPost({...editedPost, content: e.target.value})}
+              onChange={(e) => setEditedPost({ ...editedPost, content: e.target.value })}
               className="edit-textarea"
             />
             <div className="edit-buttons">
-              <button onClick={handleSaveEdit} className="save-button">Save</button>
-              <button onClick={handleCancelEdit} className="cancel-button">Cancel</button>
+              <button onClick={handleSaveEdit} className="save-button">
+                Save
+              </button>
+              <button onClick={handleCancelEdit} className="cancel-button">
+                Cancel
+              </button>
             </div>
           </div>
         ) : (
@@ -163,9 +165,19 @@ const handleSaveEdit = async () => {
           </>
         )}
       </div>
-      <div className="comments-toggle" onClick={() => setShowComments(!showComments)}>
-        {showComments ? 'Hide Comments' : 'Show Comments'}
+
+      {/* Like Button */}
+      <div className="like-section">
+        <button className="like-button" onClick={handleLike}>
+          <FontAwesomeIcon icon={isLiked ? faThumbsDown : faThumbsUp} />
+          {isLiked ? " Unlike" : " Like"} ({likes.length})
+        </button>
       </div>
+
+      <div className="comments-toggle" onClick={() => setShowComments(!showComments)}>
+        {showComments ? "Hide Comments" : "Show Comments"}
+      </div>
+
       {showComments && (
         <div className="comments-section">
           <h3>Comments</h3>
