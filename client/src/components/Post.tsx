@@ -112,7 +112,7 @@ function Post({ post, userEmail }: PostProps) {
       }
 
       const response = await apiClient.patch(
-        `/posts/${post._id}/like`,
+        `/studentpost/${post._id}/like`,
         { userId: userEmail },
         { headers: { Authorization: `Bearer ${token}` } }
       );

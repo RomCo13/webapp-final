@@ -30,6 +30,7 @@ export const loginUser = (user: Partial<IUser>) => {
         console.log(user)
         apiClient.post("/auth/login", user).then((response) => {
             console.log(response)
+            localStorage.setItem('authToken', response.data.accessToken);
             resolve(response.data)
         }).catch((error) => {
             console.log(error)
