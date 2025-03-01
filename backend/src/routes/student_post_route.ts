@@ -155,4 +155,54 @@ router.put("/:id", authMiddleware, StudentPostController.putById);
  */
 router.delete("/:id", authMiddleware, StudentPostController.deleteById);
 
+/**
+ * @swagger
+ * /studentpost/{postId}/like:
+ *   patch:
+ *     summary: Like or unlike a student post
+ *     tags: [StudentPosts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the student post to like or unlike
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 description: The ID of the user liking or unliking the post
+ *     responses:
+ *       200:
+ *         description: Successfully updated the like status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 likes:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   description: List of user IDs who liked the post
+ *       401:
+ *         description: Unauthorized (User not authenticated)
+ *       404:
+ *         description: Post not found
+ *       500:
+ *         description: Server error
+ */
+router.patch("/:postId/like", authMiddleware, StudentPostController.toggleLike);
+
 export default router;
