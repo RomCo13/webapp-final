@@ -5,6 +5,7 @@ export interface IStudentPost extends Document {
     title: string;
     content: string;
     comments: mongoose.Types.ObjectId[]; // Array of ObjectId references to comments
+    likes: mongoose.Types.ObjectId[]; // Array of ObjectId references to comments
     createdAt: Date;
     updatedAt: Date;
 }
@@ -27,13 +28,18 @@ const studentPostSchema = new Schema(
         comments: [
             {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: 'Comment', // Reference to the Comment model
-                required: false,
+                ref: 'Comment',
+            },
+        ],
+        likes: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User', // Store user IDs who liked the post
             },
         ],
     },
     {
-        timestamps: true, // Automatically adds createdAt and updatedAt fields
+        timestamps: true,
     }
 );
 

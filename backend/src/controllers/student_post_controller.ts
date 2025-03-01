@@ -1,8 +1,44 @@
 import { Request, Response } from "express";
-import { StudentPost } from "../models/student_post.model";
+import { IStudentPost, StudentPost } from "../models/student_post.model";
 import { AuthRequest } from "../common/auth_middleware";
+import mongoose from "mongoose";
 
 export class StudentPostController {
+  // Like or Unlike a Post
+  static async toggleLike(req: AuthRequest, res: Response) {
+    try {
+      const userId = req.user?._id; // Get the logged-in user's ID
+      const userIdObjectId = new mongoose.Types.ObjectId(userId);
+      const { postId } = req.params;
+
+      if (!userId) {
+        return res.status(401).json({ status: "error", message: "User not authenticated" });
+      }
+      
+      const post = await StudentPost.findById(postId) as IStudentPost;
+      if (!post) {
+        return res.status(404).json({ status: "error", message: "Post not found" });
+      }
+      
+      const hasLiked = post.likes.includes(userIdObjectId);
+      
+      if (hasLiked) {
+        // Unlike: Remove user from likes array
+        post.likes = post.likes.filter((id) => id.toString() !== userId.toString());
+      } else {
+        // Like: Add user to likes array
+        post.likes.push(userIdObjectId);
+      }
+      
+      await post.save();
+
+      res.status(200).json({ status: "success", likes: post.likes });
+    } catch (error) {
+      console.error("Error toggling like:", error);
+      res.status(500).json({ status: "error", message: "Failed to update like", error: error.message });
+    }
+  }
+
   static async createPost(req: AuthRequest, res: Response) {
     try {
       const studentId = req.user?._id;
@@ -61,10 +97,7 @@ export class StudentPostController {
 
   static async getPostById(req: Request, res: Response) {
     try {
-      const post = await StudentPost.findById(req.params.id).populate(
-        "student",
-        "name email"
-      );
+      const post = await StudentPost.findById(req.params.id).populate("student", "name email");
 
       if (!post) {
         return res.status(404).json({

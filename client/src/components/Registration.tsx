@@ -49,6 +49,7 @@ function Registration({ onRegisterSuccess }: RegistrationProps) {
     const onGoogleLoginSuccess = async (credentialResponse: CredentialResponse) => {
         try {
             const res = await googleSignin(credentialResponse);
+            localStorage.setItem('authToken', res.accessToken ?? '');
             console.log(res);
             onRegisterSuccess(res.email);
         } catch (e) {
