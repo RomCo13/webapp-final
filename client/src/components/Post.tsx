@@ -34,6 +34,12 @@ function Post({ post, userEmail }: PostProps) {
 
   const isPostOwner = userEmail === post.student.email;
 
+  // Image handling - simplified
+  const [imageError, setImageError] = useState(false);
+  
+  // Construct image URL based on post ID - only when imageUrl is not provided
+  const effectiveImageUrl = post.imageUrl || `http://localhost:3000/public/${post._id}.jpg`;
+
   useEffect(() => {
     const loadComments = async () => {
       try {
@@ -126,12 +132,12 @@ function Post({ post, userEmail }: PostProps) {
   };
 
   return (
-    <div>
+    <div className="post-container">
       <div className="post-header">
-        <img src="/src/assets/avatar.jpeg" alt="User profile" className="profile-pic" />
+        <div className="profile-pic">{post.student.email[0].toUpperCase()}</div>
         <span className="user-email">{post.student.email}</span>
         {isPostOwner && (
-          <button className="edit-button" onClick={handleEditClick} title="Edit post">
+          <button onClick={handleEditClick} className="edit-button">
             <FontAwesomeIcon icon={faPencilAlt} />
           </button>
         )}
@@ -163,6 +169,18 @@ function Post({ post, userEmail }: PostProps) {
           <>
             <h2 className="post-title">{post.title}</h2>
             <p className="post-description">{post.content}</p>
+            
+            {/* Simplified image display logic */}
+            {!imageError && (
+              <div className="post-image-container">
+                <img 
+                  src={effectiveImageUrl}
+                  alt={post.title} 
+                  className="post-image"
+                  onError={() => setImageError(true)}
+                />
+              </div>
+            )}
           </>
         )}
       </div>
