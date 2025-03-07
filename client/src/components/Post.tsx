@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./Post.css"; // Assuming you have a CSS file for styling
 import { fetchCommentsByPostId } from "../services/comments-service";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencilAlt, faThumbsUp, faThumbsDown } from "@fortawesome/free-solid-svg-icons";
+import { faPencilAlt, faThumbsUp } from "@fortawesome/free-solid-svg-icons";
 import apiClient from "../services/api-client";
 
 export interface PostData {

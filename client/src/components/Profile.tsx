@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom"; // Change to Link
 import Post, { PostData } from "./Post";
 import postService, { CanceledError } from "../services/posts-service";
 import "./PostsList.css";
 import "./NavButton.css"; // Import the new CSS
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'; // Import the arrow icon
 
 interface ProfileProps {
   userEmail: string;

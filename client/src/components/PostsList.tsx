@@ -1,12 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import Post, { PostData } from './Post';
 import postService, { CanceledError } from "../services/posts-service";
 import CreatePostDialog from './CreatePostDialog';
 import './PostsList.css';
 import './NavButton.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser } from '@fortawesome/free-solid-svg-icons';
 
 interface PostsListProps {
     userEmail: string;
