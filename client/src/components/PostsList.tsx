@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Add this import
+import { Link } from 'react-router-dom';
 import Post, { PostData } from './Post';
 import postService, { CanceledError } from "../services/posts-service";
 import CreatePostDialog from './CreatePostDialog';
 import './PostsList.css';
+import './NavButton.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
 
 interface PostsListProps {
     userEmail: string;
@@ -13,7 +16,6 @@ function PostList({ userEmail }: PostsListProps) {
     const [posts, setPosts] = useState<PostData[]>([]);
     const [error, setError] = useState();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const navigate = useNavigate(); // Add this hook
 
     const fetchPosts = () => {
         const { req, abort } = postService.getAllPosts();
@@ -32,6 +34,12 @@ function PostList({ userEmail }: PostsListProps) {
         return () => abort();
     }, []);
 
+    // Handle the new post with image
+    const handlePostCreated = (newPost: PostData) => {
+        // Add the new post to the beginning of the posts array
+        setPosts(currentPosts => [newPost, ...currentPosts]);
+    };
+
     return (
         <div className="posts-list-container">
             {error && (
@@ -40,15 +48,7 @@ function PostList({ userEmail }: PostsListProps) {
                 </div>
             )}
 
-            <div className="flex justify-between items-center mb-4">
-                <h1>All Posts</h1> {/* Added heading */}
-                <button
-                    className="btn-post-view"
-                    onClick={() => navigate('/profile')} // Navigate to Profile
-                >
-                    View My Posts
-                </button>
-            </div>
+            <h1 className="mb-4">All Posts</h1>
 
             <button 
                 className="floating-button"
@@ -61,7 +61,7 @@ function PostList({ userEmail }: PostsListProps) {
             <CreatePostDialog 
                 isOpen={isDialogOpen}
                 onClose={() => setIsDialogOpen(false)}
-                onPostCreated={fetchPosts}
+                onPostCreated={handlePostCreated}
             />
 
             <div className="space-y-4">

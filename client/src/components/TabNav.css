@@ -1,0 +1,48 @@
+.tab-navigation {
+  display: flex;
+  background-color: white;
+  border-bottom: 1px solid #e0e0e0;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  width: auto;
+  margin-right: auto;
+}
+
+.tab-item {
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: #666;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-bottom: 3px solid transparent;
+}
+
+.tab-item:hover {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.tab-item.active {
+  color: #0095f6;
+  border-bottom: 3px solid #0095f6;
+  background-color: #f0f8ff;
+}
+
+.tab-item svg {
+  font-size: 1.2rem;
+}
+
+/* Improve the header container for better alignment */
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  padding: 0.25rem 0;
+} 

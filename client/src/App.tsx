@@ -5,6 +5,7 @@ import Registration from "./components/Registration";
 import Login from "./components/Login";
 import ProfileMenu from './components/ProfileMenu';
 import Profile from './components/Profile';
+import TabNav from './components/TabNav';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -61,7 +62,8 @@ function App() {
           </div>
         ) : (
           <div>
-            <div className="d-flex justify-content-end mb-3">
+            <div className="header-container">
+              <TabNav />
               <ProfileMenu onLogout={handleLogout} userEmail={userEmail} />
             </div>
             <Routes>

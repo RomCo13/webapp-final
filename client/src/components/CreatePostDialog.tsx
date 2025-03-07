@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import apiClient from '../services/api-client';
 import './CreatePostDialog.css';
+import { PostData } from './Post';
 
 interface CreatePostDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onPostCreated: () => void;
+  onPostCreated: (newPost: PostData) => void;
 }
 
 function CreatePostDialog({ isOpen, onClose, onPostCreated }: CreatePostDialogProps) {
@@ -60,9 +61,12 @@ function CreatePostDialog({ isOpen, onClose, onPostCreated }: CreatePostDialogPr
         { headers: { Authorization: `Bearer ${token}` }}
       );
       
+      // Get the created post data
+      let newPost = postResponse.data.data;
+      
       // If we have an image and received a post ID, upload the image
-      if (selectedImage && postResponse.data.data._id) {
-        const postId = postResponse.data.data._id;
+      if (selectedImage && newPost._id) {
+        const postId = newPost._id;
         
         // Upload image with post ID in the URL
         const imageUrl = await uploadImageForPost(selectedImage, postId);
@@ -72,6 +76,9 @@ function CreatePostDialog({ isOpen, onClose, onPostCreated }: CreatePostDialogPr
           { imageUrl },
           { headers: { Authorization: `Bearer ${token}` }}
         );
+        
+        // Add the image URL to our post object for immediate UI update
+        newPost.imageUrl = imageUrl;
       }
       
       // Clear form and close dialog
@@ -79,7 +86,9 @@ function CreatePostDialog({ isOpen, onClose, onPostCreated }: CreatePostDialogPr
       setContent('');
       setSelectedImage(null);
       setImagePreview(null);
-      onPostCreated();
+      
+      // Pass the complete post data back to parent
+      onPostCreated(newPost);
       onClose();
     } catch (error) {
       console.error('Error creating post:', error);

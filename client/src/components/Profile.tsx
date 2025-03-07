@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // Add this import
+import { Link } from "react-router-dom"; // Change to Link
 import Post, { PostData } from "./Post";
 import postService, { CanceledError } from "../services/posts-service";
 import "./PostsList.css";
+import "./NavButton.css"; // Import the new CSS
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'; // Import the arrow icon
 
 interface ProfileProps {
   userEmail: string;
@@ -11,7 +14,6 @@ interface ProfileProps {
 function Profile({ userEmail }: ProfileProps) {
   const [posts, setPosts] = useState<PostData[]>([]);
   const [error, setError] = useState("");
-  const navigate = useNavigate(); // Add this hook
 
   useEffect(() => {
     const { req, abort } = postService.getAllPosts();
@@ -32,15 +34,7 @@ function Profile({ userEmail }: ProfileProps) {
 
   return (
     <div className="posts-list-container">
-      <div className="flex justify-between items-center mb-4">
-        <h1>My Posts</h1>
-        <button
-          className="btn-post-view"
-          onClick={() => navigate("/posts")} // Navigate to PostList
-        >
-          Back to All Posts
-        </button>
-      </div>
+      <h1 className="mb-4">My Posts</h1>
 
       {error && (
         <div className="alert alert-danger" role="alert">

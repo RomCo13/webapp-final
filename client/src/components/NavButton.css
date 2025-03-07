@@ -1,0 +1,24 @@
+.nav-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  background-color: white;
+  color: #0095f6;
+  border: 2px solid #0095f6;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.nav-button:hover {
+  background-color: #0095f6;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.nav-button:active {
+  transform: translateY(0);
+} 

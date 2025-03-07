@@ -34,26 +34,11 @@ function Post({ post, userEmail }: PostProps) {
 
   const isPostOwner = userEmail === post.student.email;
 
-  // Construct image URL based on post ID
-  const postImageUrl = `http://localhost:3000/public/${post._id}.jpg`;
-  const [imageExists, setImageExists] = useState(post.imageUrl !== undefined);
-
-  // Check if the image exists
-  useEffect(() => {
-    const checkImageExists = async () => {
-      try {
-        // Check if the image exists by making a HEAD request
-        await fetch(postImageUrl, { method: 'HEAD' });
-        setImageExists(true);
-      } catch (error) {
-        setImageExists(false);
-      }
-    };
-
-    if (!post.imageUrl) {
-      checkImageExists();
-    }
-  }, [post._id, post.imageUrl, postImageUrl]);
+  // Image handling - simplified
+  const [imageError, setImageError] = useState(false);
+  
+  // Construct image URL based on post ID - only when imageUrl is not provided
+  const effectiveImageUrl = post.imageUrl || `http://localhost:3000/public/${post._id}.jpg`;
 
   useEffect(() => {
     const loadComments = async () => {
@@ -184,17 +169,15 @@ function Post({ post, userEmail }: PostProps) {
           <>
             <h2 className="post-title">{post.title}</h2>
             <p className="post-description">{post.content}</p>
-            {/* Show image if it exists in post data or based on post ID */}
-            {(post.imageUrl || imageExists) && (
+            
+            {/* Simplified image display logic */}
+            {!imageError && (
               <div className="post-image-container">
                 <img 
-                  src={post.imageUrl || postImageUrl} 
+                  src={effectiveImageUrl}
                   alt={post.title} 
                   className="post-image"
-                  onError={(e) => {
-                    // Hide the image container if the image fails to load
-                    (e.target as HTMLElement).parentElement!.style.display = 'none';
-                  }} 
+                  onError={() => setImageError(true)}
                 />
               </div>
             )}
