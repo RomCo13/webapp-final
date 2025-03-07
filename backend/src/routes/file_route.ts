@@ -28,15 +28,15 @@ const upload = multer({ storage: storage });
 
 // Standard file upload route
 router.post('/', upload.single("file"), function (req, res) {
-    console.log("router.post(/file: " + base + req.file.path)
-    res.status(200).send({ url: base + req.file.path })
+    console.log("router.post(/file: " + base + req)
+    res.status(200).send({ url: base + req })
 });
 
 // New route specifically for post image uploads
 router.post('/:postId', upload.single("file"), function (req, res) {
     console.log("Uploading file for post:", req.params.postId);
-    console.log("File path:", base + req.file.path);
-    res.status(200).send({ url: base + req.file.path })
+    console.log("File path:", base + req);
+    res.status(200).send({ url: base + req })
 });
 
 export = router;
