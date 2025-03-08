@@ -22,11 +22,12 @@ function PostList({ userEmail }: PostsListProps) {
 
     try {
       // Example API call - replace with your actual API endpoint (e.g., OpenAI)
+      const apikey = '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'
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer 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', // Replace with your API key
+          'Authorization': `Bearer ${apikey}`, // Replace with your API key
         },
         body: JSON.stringify({
           model: 'gpt-3.5-turbo',
