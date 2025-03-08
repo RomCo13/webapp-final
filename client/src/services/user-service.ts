@@ -51,3 +51,29 @@ export const googleSignin = (credentialResponse: CredentialResponse) => {
         })
     })
 }
+
+export const editProfile = (updates: Partial<IUser>) => {
+    return new Promise<IUser>((resolve, reject) => {
+        console.log("Editing profile...")
+        console.log(updates)
+        
+        // Get the token from localStorage
+        const authToken = localStorage.getItem('authToken');
+        if (!authToken) {
+            reject(new Error("No authentication token found"));
+            return;
+        }
+
+        apiClient.put("/auth/edit", updates, {
+            headers: {
+                Authorization: `Bearer ${authToken}`
+            }
+        }).then((response) => {
+            console.log(response)
+            resolve(response.data)
+        }).catch((error) => {
+            console.log(error)
+            reject(error)
+        })
+    })
+}
