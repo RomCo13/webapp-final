@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
-import Post, { PostData } from './Post';
+import { useEffect, useState } from "react";
+import Post, { PostData } from "./Post";
 import postService, { CanceledError } from "../services/posts-service";
-import CreatePostDialog from './CreatePostDialog';
-import './PostsList.css';
-import './NavButton.css';
+import CreatePostDialog from "./CreatePostDialog";
+import "./PostsList.css";
+import "./NavButton.css";
 
 interface PostsListProps {
   userEmail: string;
@@ -22,27 +22,30 @@ function PostList({ userEmail }: PostsListProps) {
 
     try {
       // Example API call - replace with your actual API endpoint (e.g., OpenAI)
-    //   const apikey = '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'
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        //   'Authorization': `Bearer ${apikey}`, // Replace with your API key
-        },
-        body: JSON.stringify({
-          model: 'gpt-3.5-turbo',
-          messages: [
-            {
-              role: 'system',
-              content: 'Generate a random social media post with a title and content in the following JSON format: { "title": "string", "content": "string" }',
-            },
-          ],
-          max_tokens: 100,
-        }),
-      });
+      const response = await fetch(
+        "https://api.openai.com/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [
+              {
+                role: "system",
+                content:
+                  'Generate a random social media post with a title and content in the following JSON format: { "title": "string", "content": "string" }',
+              },
+            ],
+            max_tokens: 100,
+          }),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch generated posts');
+        throw new Error("Failed to fetch generated posts");
       }
 
       const data = await response.json();
@@ -56,7 +59,7 @@ function PostList({ userEmail }: PostsListProps) {
         title: generatedPost.title,
         content: generatedPost.content,
         student: {
-          email: 'generated@example.com', // Placeholder for generated posts
+          email: "generated@example.com", // Placeholder for generated posts
         },
         likes: [], // Initialize with no likes
         imageUrl: undefined, // No image for generated posts (optional: fetch a random image URL)
@@ -65,7 +68,7 @@ function PostList({ userEmail }: PostsListProps) {
       setPosts((currentPosts) => [newPost, ...currentPosts]);
     } catch (err) {
       console.error(err);
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setIsLoading(false);
     }
@@ -74,13 +77,15 @@ function PostList({ userEmail }: PostsListProps) {
   // Fetch regular posts from your backend
   const fetchPosts = () => {
     const { req, abort } = postService.getAllPosts();
-    req.then((res) => {
-      setPosts(res.data.data);
-    }).catch((err) => {
-      console.log(err);
-      if (err instanceof CanceledError) return;
-      setError(err.message);
-    });
+    req
+      .then((res) => {
+        setPosts(res.data.data);
+      })
+      .catch((err) => {
+        console.log(err);
+        if (err instanceof CanceledError) return;
+        setError(err.message);
+      });
     return abort;
   };
 
@@ -117,7 +122,7 @@ function PostList({ userEmail }: PostsListProps) {
           disabled={isLoading}
           title="Generate random post"
         >
-          {isLoading ? 'Generating...' : 'Generate'}
+          {isLoading ? "Generating..." : "Generate"}
         </button>
       </div>
 
@@ -144,7 +149,9 @@ function PostList({ userEmail }: PostsListProps) {
         {posts.length === 0 && !error && !isLoading && (
           <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
             <p className="text-gray-500 text-lg">No posts to display yet</p>
-            <p className="text-gray-400 mt-1">Create your first post or generate one!</p>
+            <p className="text-gray-400 mt-1">
+              Create your first post or generate one!
+            </p>
           </div>
         )}
 
