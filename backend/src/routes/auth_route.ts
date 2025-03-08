@@ -35,9 +35,17 @@ import authController from "../controllers/auth_controller";
 *         password:
 *           type: string
 *           description: The user password
+*         username:
+*           type: string
+*           description: The user username
+*         imgUrl:
+*           type: string
+*           description: The user profile image URL
 *       example:
 *         email: 'bob@gmail.com'
 *         password: '123456'
+*         username: 'bob123'
+*         imgUrl: 'https://example.com/image.jpg'
 */
 
 /**
@@ -120,6 +128,62 @@ router.post("/login", authController.login);
 *       200:
 *         description: logout completed successfully
 */
+
+/**
+* @swagger
+* /auth/edit:
+*   put:
+*     summary: Edit user profile
+*     tags: [Auth]
+*     description: Update username and/or password for authenticated user
+*     security:
+*       - bearerAuth: []
+*     requestBody:
+*       required: true
+*       content:
+*         application/json:
+*           schema:
+*             type: object
+*             properties:
+*               username:
+*                 type: string
+*                 description: New username
+*               password:
+*                 type: string
+*                 description: New password
+*             example:
+*               username: 'newusername123'
+*               password: 'newpassword456'
+*     responses:
+*       200:
+*         description: Updated user profile
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 _id:
+*                   type: string
+*                 email:
+*                   type: string
+*                 username:
+*                   type: string
+*                 imgUrl:
+*                   type: string
+*               example:
+*                 _id: '123456789'
+*                 email: 'bob@gmail.com'
+*                 username: 'newusername123'
+*                 imgUrl: 'https://example.com/image.jpg'
+*       401:
+*         description: Unauthorized - Invalid or missing token
+*       400:
+*         description: Bad request - Missing required fields
+*       409:
+*         description: Conflict - Username already taken
+*/
+router.put("/edit", authController.editProfile);
+
 router.get("/logout", authController.logout);
 router.get("/refresh", authController.refresh);
 
