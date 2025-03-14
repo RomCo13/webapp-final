@@ -1,7 +1,9 @@
+// PostsList.tsx
 import { useEffect, useState } from 'react';
 import Post, { PostData } from './Post';
 import postService, { CanceledError } from "../services/posts-service";
 import CreatePostDialog from './CreatePostDialog';
+import { OpenAI } from 'openai'; // Add OpenAI client library
 import './PostsList.css';
 import './NavButton.css';
 
@@ -11,8 +13,14 @@ interface PostsListProps {
 
 function PostList({ userEmail }: PostsListProps) {
     const [posts, setPosts] = useState<PostData[]>([]);
-    const [error, setError] = useState();
+    const [error, setError] = useState<string | undefined>();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isLoadingAI, setIsLoadingAI] = useState(false);
+
+    const openai = new OpenAI({
+        apiKey: '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', // WARNING: Don't commit this to version control!
+        dangerouslyAllowBrowser: true 
+    });
 
     const fetchPosts = () => {
         const { req, abort } = postService.getAllPosts();
@@ -31,10 +39,61 @@ function PostList({ userEmail }: PostsListProps) {
         return () => abort();
     }, []);
 
-    // Handle the new post with image
     const handlePostCreated = (newPost: PostData) => {
-        // Add the new post to the beginning of the posts array
         setPosts(currentPosts => [newPost, ...currentPosts]);
+    };
+
+    const handleGenerateAIPost = async () => {
+        try {
+            setIsLoadingAI(true);
+
+            const completion = await openai.chat.completions.create({
+                model: "gpt-3.5-turbo",
+                messages: [
+                    { 
+                        role: "system", 
+                        content: "You are a creative social media content generator. Return JSON with 'title' and 'content' fields."
+                    },
+                    { 
+                        role: "user", 
+                        content: `Generate a social media post as if written by ${userEmail}. 
+                                Make it engaging, 2-3 sentences long, on a random interesting topic. 
+                                Include a title and content.`
+                    }
+                ],
+                response_format: { type: "json_object" }
+            });
+
+            const aiResponse = JSON.parse(completion.choices[0].message.content!);
+
+            // Create post object matching PostData interface
+            const newPost: PostData = {
+                _id: Date.now().toString(), // Temporary ID since we're not saving to backend
+                title: aiResponse.title,
+                content: aiResponse.content,
+                student: { email: userEmail },
+                likes: []
+            };
+
+            // Add to posts array
+            setPosts(currentPosts => [newPost, ...currentPosts]);
+
+            // Optional: Save to backend if needed
+            const token = localStorage.getItem("authToken");
+            if (token) {
+                try {
+                    await postService.createPost(newPost, token);
+                } catch (err) {
+                    console.error("Failed to save AI post to backend:", err);
+                }
+            }
+
+        } catch (err: any) {
+            console.error("Error generating AI post:", err);
+            setError(err.message || "Failed to generate AI post");
+        } finally {
+            setIsLoadingAI(false);
+        }
     };
 
     return (
@@ -48,12 +107,24 @@ function PostList({ userEmail }: PostsListProps) {
             <h1 className="mb-4">All Posts</h1>
 
             <button 
+                className="floating-button ai-button"
+                onClick={handleGenerateAIPost}
+                title="Generate AI post"
+                disabled={isLoadingAI}
+                style={{ marginLeft: '10px' }}
+            >
+                {isLoadingAI ? '...' : 'AI'}
+            </button>
+            
+            <button 
                 className="floating-button"
                 onClick={() => setIsDialogOpen(true)}
                 title="Create new post"
             >
                 +
             </button>
+
+
 
             <CreatePostDialog 
                 isOpen={isDialogOpen}
