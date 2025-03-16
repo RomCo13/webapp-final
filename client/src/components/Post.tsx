@@ -38,7 +38,7 @@ function Post({ post, userEmail }: PostProps) {
   const [imageError, setImageError] = useState(false);
   
   // Construct image URL based on post ID - only when imageUrl is not provided
-  const effectiveImageUrl = post.imageUrl || `https://localhost:443/public/${post._id}.jpg`;
+  const effectiveImageUrl = post.imageUrl || `https://193.106.55.208/public/${post._id}.jpg`;
 
   useEffect(() => {
     const loadComments = async () => {
