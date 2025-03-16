@@ -18,7 +18,7 @@ function PostList({ userEmail }: PostsListProps) {
     const [isLoadingAI, setIsLoadingAI] = useState(false);
 
     const openai = new OpenAI({
-        apiKey: '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', // WARNING: Don't commit this to version control!
+        apiKey: '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', // WARNING: Don't commit this to version control!
         dangerouslyAllowBrowser: true 
     });
 
