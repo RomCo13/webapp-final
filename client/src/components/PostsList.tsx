@@ -1,9 +1,7 @@
-// PostsList.tsx
 import { useEffect, useState } from 'react';
 import Post, { PostData } from './Post';
 import postService, { CanceledError } from "../services/posts-service";
 import CreatePostDialog from './CreatePostDialog';
-import { OpenAI } from 'openai'; // Add OpenAI client library
 import './PostsList.css';
 import './NavButton.css';
 
@@ -17,17 +15,11 @@ function PostList({ userEmail }: PostsListProps) {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isLoadingAI, setIsLoadingAI] = useState(false);
 
-    const openai = new OpenAI({
-        apiKey: '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', // WARNING: Don't commit this to version control!
-        dangerouslyAllowBrowser: true 
-    });
-
     const fetchPosts = () => {
         const { req, abort } = postService.getAllPosts();
         req.then((res) => {
             setPosts(res.data.data);
         }).catch((err) => {
-            console.log(err);
             if (err instanceof CanceledError) return;
             setError(err.message);
         });
@@ -46,39 +38,41 @@ function PostList({ userEmail }: PostsListProps) {
     const handleGenerateAIPost = async () => {
         try {
             setIsLoadingAI(true);
-
-            const completion = await openai.chat.completions.create({
-                model: "gpt-3.5-turbo",
-                messages: [
-                    { 
-                        role: "system", 
-                        content: "You are a creative social media content generator. Return JSON with 'title' and 'content' fields."
-                    },
-                    { 
-                        role: "user", 
-                        content: `Generate a social media post as if written by ${userEmail}. 
-                                Make it engaging, 2-3 sentences long, on a random interesting topic. 
-                                Include a title and content.`
-                    }
-                ],
-                response_format: { type: "json_object" }
+            
+            const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBermvSuYNm9LsIkN5r8gSqXrHMrJQ9fwI", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    contents: [{
+                        role: "user",
+                        parts: [{ text: `Generate a social media post as if written by ${userEmail}. Make it engaging, 2-3 sentences long, on a random interesting topic. Include a title and content in JSON format like {\"title\": \"...\", \"content\": \"...\"}.` }]
+                    }]
+                })
             });
-
-            const aiResponse = JSON.parse(completion.choices[0].message.content!);
-
-            // Create post object matching PostData interface
+            
+            const data = await response.json();
+            const rawText = data.candidates[0].content.parts[0].text;
+            
+            // Extract JSON from text using regex
+            const jsonMatch = rawText.match(/\{.*\}/s);
+            if (!jsonMatch) {
+                throw new Error("AI response did not contain valid JSON");
+            }
+            
+            const aiResponse = JSON.parse(jsonMatch[0]);
+            
             const newPost: PostData = {
-                _id: Date.now().toString(), // Temporary ID since we're not saving to backend
+                _id: Date.now().toString(),
                 title: aiResponse.title,
                 content: aiResponse.content,
                 student: { email: userEmail },
                 likes: []
             };
 
-            // Add to posts array
             setPosts(currentPosts => [newPost, ...currentPosts]);
 
-            // Optional: Save to backend if needed
             const token = localStorage.getItem("authToken");
             if (token) {
                 try {
